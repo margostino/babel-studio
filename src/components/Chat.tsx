@@ -32,6 +32,12 @@ const Chat = () => {
     return `msg-${Date.now()}-${messageIdCounter.current}`
   }
 
+  const focusInput = () => {
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 100)
+  }
+
   const handleSend = useCallback(async () => {
     if (!input.trim() || input.length > MAX_MESSAGE_LENGTH || isProcessing) return
 
@@ -39,6 +45,7 @@ const Chat = () => {
     const userMessage = { id: generateMessageId(), sender: 'user', text: input }
     setMessages((prev) => [...prev, userMessage])
     setInput('')
+    focusInput()
 
     try {
       const botMessageId = generateMessageId()
@@ -57,6 +64,7 @@ const Chat = () => {
           eventSourceRef.current = null
         }
         setIsProcessing(false)
+        focusInput()
       }
 
       window.addEventListener('beforeunload', cleanup)
@@ -68,6 +76,7 @@ const Chat = () => {
             return [...prev.slice(0, -1), { ...lastMessage, isTyping: false }]
           })
           cleanup()
+          focusInput()
           return
         }
 
@@ -94,6 +103,7 @@ const Chat = () => {
       eventSourceRef.current.addEventListener('error', (error) => {
         console.error('EventSource failed:', error)
         cleanup()
+        focusInput()
       })
 
       eventSourceRef.current.onerror = (error) => {
@@ -107,6 +117,7 @@ const Chat = () => {
             text: 'Sorry, there was an error processing your request.',
           },
         ])
+        focusInput()
       }
     } catch (error) {
       console.error('Error details:', {
@@ -123,6 +134,7 @@ const Chat = () => {
         },
       ])
       setIsProcessing(false)
+      focusInput()
     }
   }, [input, isProcessing])
 
@@ -149,6 +161,7 @@ const Chat = () => {
 
   useEffect(() => {
     setIsLoading(false)
+    focusInput()
     return () => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close()
@@ -156,14 +169,22 @@ const Chat = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isLoading) {
+      focusInput()
+    }
+  }, [isLoading])
+
   const MessageItem = memo(({ message }: { message: Message }) => (
     <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-xs p-3 rounded-lg text-sm ${
-          message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-dark-card text-dark-text'
+        className={`max-w-md p-4 rounded-lg text-sm ${
+          message.sender === 'user'
+            ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+            : 'bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)]'
         }`}
       >
-        {message.text}
+        <p className="leading-relaxed">{message.text}</p>
         {message.isTyping && (
           <span className="typing-indicator">
             <span className="dot">.</span>
@@ -205,10 +226,11 @@ const Chat = () => {
           <div className="p-4 bg-gray-800">
             <div className="flex items-center space-x-4">
               <Input
+                ref={inputRef}
                 type="text"
                 aria-label="Message input"
                 placeholder="Type your message..."
-                className="flex-1 bg-gray-700 text-gray-200 placeholder-gray-400"
+                className="flex-1 bg-[var(--input)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] border-[var(--border)]"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyUp={handleKeyPress}
