@@ -178,13 +178,13 @@ const Chat = () => {
   const MessageItem = memo(({ message }: { message: Message }) => (
     <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-md p-4 rounded-lg text-sm ${
+        className={`inline-block max-w-[85%] p-4 rounded-lg text-sm ${
           message.sender === 'user'
             ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
             : 'bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)]'
         }`}
       >
-        <p className="leading-relaxed">{message.text}</p>
+        <p className="leading-relaxed whitespace-pre-wrap">{message.text}</p>
         {message.isTyping && (
           <span className="typing-indicator">
             <span className="dot">.</span>
@@ -204,7 +204,7 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900">
-      <header className="p-4 bg-gray-800 shadow-md">
+      <header className="p-4 bg-black shadow-md border-b border-gray-800">
         <h1 className="text-xl font-bold text-center text-white">Babel 🧠 ⚡️</h1>
       </header>
 
@@ -223,7 +223,7 @@ const Chat = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="p-4 bg-gray-800">
+          <div className="p-4 bg-dark shadow-md border-b border-gray-800">
             <div className="flex items-center space-x-4">
               <Input
                 ref={inputRef}
@@ -234,13 +234,16 @@ const Chat = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyUp={handleKeyPress}
-                disabled={isProcessing}
                 maxLength={MAX_MESSAGE_LENGTH}
               />
               <Button
                 onClick={handleSend}
-                className="bg-gray-500 hover:bg-blue-600"
-                disabled={isProcessing}
+                className={`${
+                  !input.trim() || isProcessing
+                    ? 'bg-gray-500 hover:bg-gray-500' // Disabled state
+                    : 'bg-blue-600 hover:bg-blue-700' // Enabled state
+                }`}
+                disabled={!input.trim() || isProcessing}
                 aria-label="Send message"
               >
                 {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
