@@ -29,7 +29,7 @@ export default function Home() {
   ]
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-background p-6">
+    <div className="flex flex-col items-center justify-center bg-background p-6">
       {/* Title Section */}
       <div className="text-center mb-6">
         <h1 className="text-5xl font-semibold text-white">Babel Studio</h1>

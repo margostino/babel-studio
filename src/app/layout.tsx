@@ -47,12 +47,12 @@ export default async function RootLayout({
           inter.className
         )}
       >
-        <div className="flex h-screen">
+        <div className="flex min-h-screen">
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
             <div className="flex-1 flex flex-col min-h-screen">
-              <main className="flex-1 flex flex-col">{children}</main>
-              <footer className="mt-auto">
+              <main className="flex-1">{children}</main>
+              <footer>
                 <div className="container mx-auto text-center text-sm text-muted-foreground py-4">
                   © {new Date().getFullYear()} Babel Foundation. All rights reserved.
                 </div>

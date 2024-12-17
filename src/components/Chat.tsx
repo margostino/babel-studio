@@ -1,6 +1,5 @@
 'use client'
 
-import debounce from 'lodash.debounce'
 import { Loader2 } from 'lucide-react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from './ui/button'
@@ -148,16 +147,33 @@ const Chat = () => {
     [handleSend]
   )
 
-  const debouncedScrollToBottom = useCallback(
-    debounce(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, 100),
-    []
-  )
+  const isScrolledToBottom = useCallback((element: HTMLElement) => {
+    const { scrollHeight, scrollTop, clientHeight } = element
+    return scrollHeight - scrollTop - clientHeight <= 100
+  }, [])
 
   useEffect(() => {
-    debouncedScrollToBottom()
-  }, [messages.length, debouncedScrollToBottom])
+    const messagesContainer = messagesEndRef.current?.parentElement
+    if (!messagesContainer) return
+
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+
+    scrollToBottom()
+
+    const observer = new MutationObserver(scrollToBottom)
+
+    observer.observe(messagesContainer, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    })
+
+    return () => observer.disconnect()
+  }, [messages])
 
   useEffect(() => {
     setIsLoading(false)
@@ -203,34 +219,35 @@ const Chat = () => {
   )
 
   return (
-    <div className="flex flex-col h-screen bg-dark">
-      {/* <header className="p-4 bg-black shadow-md border-b border-gray-800">
-        <h1 className="text-xl font-bold text-center text-white">Babel 🧠 ⚡️</h1>
-      </header> */}
-
+    <div className="flex flex-col h-full bg-dark">
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
         </div>
       ) : (
         <>
-          <div
-            role="log"
-            aria-live="polite"
-            className="flex-1 p-4 overflow-y-auto space-y-4 bg-black"
-          >
-            {messageElements}
-            <div ref={messagesEndRef} />
+          <div className="flex-1 flex justify-center">
+            <div className="w-full max-w-4xl">
+              <div
+                role="log"
+                aria-live="polite"
+                className="flex-1 p-4 overflow-y-auto space-y-4 bg-black min-h-[calc(100vh-120px)] max-h-[calc(100vh-120px)]"
+                style={{ overscrollBehavior: 'contain' }}
+              >
+                {messageElements}
+                <div ref={messagesEndRef} className="h-px" />
+              </div>
+            </div>
           </div>
 
           <div className="p-4 bg-dark shadow-md">
-            <div className="flex items-center space-x-4 max-w-5xl mx-auto w-full">
+            <div className="flex items-center space-x-4 max-w-4xl mx-auto">
               <Input
                 ref={inputRef}
                 type="text"
                 aria-label="Message input"
                 placeholder="Type your message..."
-                className="flex-1 h-12 min-w-[500px] bg-[var(--input)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] border-[var(--border)]"
+                className="flex-1 h-12 bg-[var(--input)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] border-[var(--border)]"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyUp={handleKeyPress}
