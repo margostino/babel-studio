@@ -203,10 +203,10 @@ const Chat = () => {
   )
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
-      <header className="p-4 bg-black shadow-md border-b border-gray-800">
+    <div className="flex flex-col h-screen bg-dark">
+      {/* <header className="p-4 bg-black shadow-md border-b border-gray-800">
         <h1 className="text-xl font-bold text-center text-white">Babel 🧠 ⚡️</h1>
-      </header>
+      </header> */}
 
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
@@ -223,14 +223,14 @@ const Chat = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="p-4 bg-dark shadow-md border-b border-gray-800">
-            <div className="flex items-center space-x-4">
+          <div className="p-4 bg-dark shadow-md">
+            <div className="flex items-center space-x-4 max-w-5xl mx-auto w-full">
               <Input
                 ref={inputRef}
                 type="text"
                 aria-label="Message input"
                 placeholder="Type your message..."
-                className="flex-1 bg-[var(--input)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] border-[var(--border)]"
+                className="flex-1 h-12 min-w-[500px] bg-[var(--input)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] border-[var(--border)]"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyUp={handleKeyPress}
@@ -240,8 +240,8 @@ const Chat = () => {
                 onClick={handleSend}
                 className={`${
                   !input.trim() || isProcessing
-                    ? 'bg-gray-500 hover:bg-gray-500' // Disabled state
-                    : 'bg-blue-600 hover:bg-blue-700' // Enabled state
+                    ? 'bg-zinc-500 hover:bg-zinc-500' // Disabled state
+                    : 'bg-zinc-600 hover:bg-zinc-700' // Enabled state
                 }`}
                 disabled={!input.trim() || isProcessing}
                 aria-label="Send message"

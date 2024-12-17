@@ -65,7 +65,7 @@ const SidebarProvider = React.forwardRef<
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen)
+    const [_open, _setOpen] = React.useState(true)
     const open = openProp ?? _open
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
@@ -155,17 +155,66 @@ const Sidebar = React.forwardRef<
     { side = 'left', variant = 'sidebar', collapsible = 'icon', className, children, ...props },
     ref
   ) => {
-    const { isMobile, state } = useSidebar()
+    const { isMobile, state, setOpen, toggleSidebar } = useSidebar()
+    const [isHoverExpanded, setIsHoverExpanded] = React.useState(false)
+
+    const handleMouseEnter = React.useCallback(() => {
+      if (state === 'collapsed' && !isMobile) {
+        setOpen(true)
+        setIsHoverExpanded(true)
+      }
+    }, [state, isMobile, setOpen])
+
+    const handleMouseLeave = React.useCallback(() => {
+      if (isHoverExpanded) {
+        setOpen(false)
+        setIsHoverExpanded(false)
+      }
+    }, [isHoverExpanded, setOpen])
+
+    // Reset hover state when sidebar is manually toggled
+    React.useEffect(() => {
+      if (state === 'collapsed') {
+        setIsHoverExpanded(false)
+      }
+    }, [state])
+
+    const handleTriggerClick = React.useCallback(
+      (event: React.MouseEvent) => {
+        event.preventDefault()
+        event.stopPropagation()
+        setIsHoverExpanded(false) // Reset hover state when manually toggled
+        toggleSidebar()
+      },
+      [toggleSidebar]
+    )
 
     return (
       <div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground relative"
+        className="group peer hidden md:block text-sidebar-foreground fixed inset-y-0 left-0"
         data-state={state}
         data-collapsible={collapsible}
         data-variant={variant}
         data-side={side}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
+        <Button
+          data-sidebar="trigger"
+          variant="ghost"
+          size="sm"
+          className={cn(
+            'h-8 w-8 hover:bg-zinc-800/50 absolute top-6 right-0 translate-x-1/2 z-50 rounded-full border border-zinc-800 bg-zinc-900',
+            'transition-transform',
+            state === 'collapsed' ? 'rotate-180' : '',
+            className
+          )}
+          onClick={handleTriggerClick}
+        >
+          <PanelLeft className="h-4 w-4" />
+          <span className="sr-only">Toggle Sidebar</span>
+        </Button>
         <div
           className={cn(
             'duration-200 relative h-svh bg-transparent transition-[width] ease-linear',
@@ -197,37 +246,36 @@ const Sidebar = React.forwardRef<
 )
 Sidebar.displayName = 'Sidebar'
 
-const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar, state } = useSidebar()
+const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button>>(
+  ({ className, onClick, ...props }, ref) => {
+    const { toggleSidebar, state } = useSidebar()
 
-  return (
-    <Button
-      ref={ref}
-      data-sidebar="trigger"
-      variant="ghost"
-      size="sm"
-      className={cn(
-        'h-8 w-8 hover:bg-zinc-800/50 absolute top-6 right-0 translate-x-1/2 z-50 rounded-full border border-zinc-800 bg-zinc-900',
-        'transition-transform',
-        state === 'collapsed' ? 'rotate-180' : '',
-        className
-      )}
-      onClick={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        toggleSidebar()
-        onClick?.(event)
-      }}
-      {...props}
-    >
-      <PanelLeft className="h-4 w-4" />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
-  )
-})
+    return (
+      <Button
+        ref={ref}
+        data-sidebar="trigger"
+        variant="ghost"
+        size="sm"
+        className={cn(
+          'h-8 w-8 hover:bg-zinc-800/50 absolute top-6 right-0 translate-x-1/2 z-50 rounded-full border border-zinc-800 bg-zinc-900',
+          'transition-transform',
+          state === 'collapsed' ? 'rotate-180' : '',
+          className
+        )}
+        onClick={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          toggleSidebar()
+          onClick?.(event)
+        }}
+        {...props}
+      >
+        <PanelLeft className="h-4 w-4" />
+        <span className="sr-only">Toggle Sidebar</span>
+      </Button>
+    )
+  }
+)
 SidebarTrigger.displayName = 'SidebarTrigger'
 
 const SidebarRail = React.forwardRef<HTMLButtonElement, React.ComponentProps<'button'>>(
