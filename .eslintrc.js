@@ -9,6 +9,7 @@ const config = {
     'prettier/react',
     'prettier/standard',
     'plugin:@typescript-eslint/recommended',
+    'eslint:recommended',
 
     // Uses eslint-config-prettier to disable ESLint rules from
     // @typescript-eslint/eslint-plugin that would conflict with prettier
@@ -26,7 +27,7 @@ const config = {
       jsx: true, // Allows for the parsing of JSX
     },
   },
-  plugins: ['react', 'prettier', 'standard', 'jest', 'security', 'import-casing', 'import', 'node'],
+  plugins: ['react', 'prettier', 'standard', 'jest', 'security', 'import-casing', 'import', 'node', '@typescript-eslint'],
   overrides: [
     {
       // We don't want to apply prettier to automatically generated files

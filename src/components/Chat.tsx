@@ -1,6 +1,7 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
+import { Bot, Loader2, UserCircle2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
@@ -25,6 +26,7 @@ const Chat = () => {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const eventSourceRef = useRef<EventSource | null>(null)
+  const searchParams = useSearchParams()
 
   const generateMessageId = () => {
     messageIdCounter.current += 1
@@ -191,8 +193,27 @@ const Chat = () => {
     }
   }, [isLoading])
 
+  useEffect(() => {
+    const initialMessage = searchParams.get('message')
+    if (initialMessage && messages.length === 0) {
+      setInput(decodeURIComponent(initialMessage))
+      setTimeout(() => {
+        handleSend()
+      }, 100)
+    }
+  }, [searchParams, handleSend, messages.length])
+
   const MessageItem = memo(({ message }: { message: Message }) => (
-    <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+    <div
+      className={`flex items-start gap-2 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+    >
+      <div className="flex-shrink-0">
+        {message.sender === 'user' ? (
+          <UserCircle2 className="w-8 h-8 text-[var(--primary)]" />
+        ) : (
+          <Bot className="w-8 h-8 text-[var(--foreground)]" />
+        )}
+      </div>
       <div
         className={`inline-block max-w-[85%] p-4 rounded-lg text-sm ${
           message.sender === 'user'
@@ -231,7 +252,7 @@ const Chat = () => {
               <div
                 role="log"
                 aria-live="polite"
-                className="flex-1 p-4 overflow-y-auto space-y-4 bg-black min-h-[calc(100vh-120px)] max-h-[calc(100vh-120px)]"
+                className="flex-1 p-4 pt-8 overflow-y-auto space-y-4 bg-black min-h-[calc(100vh-120px)] max-h-[calc(100vh-120px)]"
                 style={{ overscrollBehavior: 'contain' }}
               >
                 {messageElements}

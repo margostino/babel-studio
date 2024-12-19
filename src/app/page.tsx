@@ -1,10 +1,30 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function Home() {
+  const router = useRouter()
+  const [input, setInput] = useState('')
+
+  const handleSend = () => {
+    if (!input.trim()) return
+    // Encode the input for URL safety
+    const encodedMessage = encodeURIComponent(input.trim())
+    router.push(`/chat?message=${encodedMessage}`)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && input.trim()) {
+      handleSend()
+    }
+  }
+
   const sections = [
     {
       title: 'Projects',
@@ -41,6 +61,9 @@ export default function Home() {
         <div className="relative">
           <Input
             type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyUp={handleKeyPress}
             placeholder="What can I help with?"
             className="w-full h-12 pr-12 bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500 focus:border-zinc-700"
             autoFocus
@@ -49,6 +72,7 @@ export default function Home() {
             <Button
               size="sm"
               variant="ghost"
+              onClick={handleSend}
               className="h-full aspect-square rounded-full hover:bg-zinc-800 flex items-center justify-center"
             >
               <ArrowRight className="h-5 w-5 text-zinc-400" />
