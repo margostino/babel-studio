@@ -2,6 +2,7 @@
 
 import {
   Archive,
+  BrainCircuit,
   Camera,
   ChevronDown,
   ChevronRight,
@@ -13,6 +14,8 @@ import {
   LineChart,
   MessageSquare,
   Plug,
+  Scale,
+  Search,
   Settings,
   User,
 } from 'lucide-react'
@@ -92,6 +95,32 @@ const AppSidebar = () => {
                 </div>
                 <span className="text-sm font-medium text-white transition-opacity group-data-[state=collapsed]:opacity-0">
                   Chat
+                </span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Brainstorming">
+              <Link href="/brainstorming" className="flex items-center gap-3">
+                <div className="min-w-[24px] flex items-center justify-center">
+                  <BrainCircuit className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-medium text-white transition-opacity group-data-[state=collapsed]:opacity-0">
+                  Brainstorming
+                </span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Decision Engine">
+              <Link href="/decisions" className="flex items-center gap-3">
+                <div className="min-w-[24px] flex items-center justify-center">
+                  <Scale className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-medium text-white transition-opacity group-data-[state=collapsed]:opacity-0">
+                  Decision Engine
                 </span>
               </Link>
             </SidebarMenuButton>
@@ -262,6 +291,19 @@ const AppSidebar = () => {
 
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="relative w-full px-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="search"
+                  placeholder="Search..."
+                  className="w-full rounded-md border border-zinc-800 bg-zinc-900 py-1.5 pl-8 pr-2 text-sm text-white placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-700"
+                />
+              </div>
+            </div>
+          </SidebarMenuItem>
+
           <SidebarMenuItem>
             <SidebarMenuButton className="w-full" tooltip={user.username}>
               <div className="min-w-[24px] flex items-center justify-center">
